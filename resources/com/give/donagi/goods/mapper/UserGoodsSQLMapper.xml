@@ -1,0 +1,52 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.goods.mapper.UserGoodsSQLMapper">
+	
+	<select id="createGoodsKey" resultType="int">
+		<![CDATA[
+			SELECT Goods_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertGoods">
+		<![CDATA[
+			INSERT INTO Goods 
+			VALUES (
+				#{g_no}, 
+				#{m_no}, 
+				#{g_title}, 
+				#{g_content}, 
+				#{g_price}, 
+				0, 
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectAllGoods" resultType="com.give.donagi.vo.GoodsVo">
+		<![CDATA[
+			SELECT * 
+			FROM Goods
+		]]>
+	</select>
+	
+	<select id="selectGoodsByNo" resultType="com.give.donagi.vo.GoodsVo">
+		<![CDATA[
+			SELECT * 
+			FROM Goods 
+			WHERE g_no = #{g_no}
+		]]>
+	</select>
+	
+	<update id="updateFlg">
+		<![CDATA[
+			UPDATE Goods 
+			SET g_flg = 1
+			WHERE g_no = #{g_no}
+		]]>
+	</update>
+	
+</mapper>

@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.freeboard.mapper.FreeBoardSQLMapper">
+
+	<select id="createKey" resultType="int">
+		<![CDATA[
+			SELECT Board_Free_seq.nextval FROM DUAL
+		]]>
+	</select>
+	
+	<!-- 자유게시판 글 작성 -->
+	<insert id="insertFreeBoard">
+		<![CDATA[
+			INSERT INTO Board_Free 
+			VALUES
+			(
+			#{bf_no}, #{m_no}, #{mst_bfh_no}, #{bf_title}, #{bf_content}, 0, SYSDATE
+			)
+		]]>
+	</insert>
+
+	<!-- 자유게시판 글 가져오기, 페이징 처리 -->
+	<select id="selectFreeBoard" resultType="com.give.donagi.vo.BoardFreeVo">
+		<![CDATA[
+			SELECT * FROM 
+			(
+				SELECT b1.*, ROWNUM as rnum 
+				FROM 
+				(SELECT * FROM Board_Free ORDER BY bf_no DESC) b1 
+			) b2 
+			WHERE b2.rnum >= (#{page_no}-1) * 10 + 1 
+			AND b2.rnum <= #{page_no} * 10
+		]]>
+	</select>
+	
+	<select id="selectCommentCnt" resultType="int">
+		<![CDATA[
+			SELECT COUNT(*) 
+			FROM Comment_BF 
+			WHERE bf_no = #{bf_no}
+		]]>
+	</select>
+
+	
+	<!-- 자유게시판 글 보기 -->
+	<select id="selectByNo" resultType="com.give.donagi.vo.BoardFreeVo">
+		<![CDATA[
+			SELECT * FROM Board_Free WHERE bf_no = #{no}
+		]]>
+	</select>
+	
+	
+	<!-- 제목 검색 -->
+	<select id="searchTitle" resultType="com.give.donagi.vo.BoardFreeVo">
+		<![CDATA[
+			SELECT * FROM Board_Free WHERE bf_title LIKE '%' || #{search_word} || '%'
+			ORDER BY bf_no DESC
+		]]>
+	</select>
+	
+	<!-- 내용 검색 -->
+	<select id="searchContent" resultType="com.give.donagi.vo.BoardFreeVo">
+		<![CDATA[
+			SELECT * FROM Board_Free WHERE bf_content LIKE '%' || #{search_word} || '%'
+			ORDER BY bf_no DESC
+		]]>
+	</select>
+	
+	<!-- 작성자 검색 -->
+	<select id="searchWriter" resultType="com.give.donagi.vo.BoardFreeVo">
+		<![CDATA[
+			SELECT b.* FROM Board_Free b, Member m
+			WHERE m.m_no = b.m_no
+			AND m.m_nick LIKE '%' || #{search_word} || '%'
+			ORDER BY bf_no DESC
+		]]>
+	</select>
+	
+	
+	<!-- 말머리 가져오기 -->
+	<select id="selectHeadline" resultType="com.give.donagi.vo.MSTBFHeadlineVo">
+		<![CDATA[
+			SELECT * FROM MST_BF_Headline WHERE mst_bfh_no = #{mst_bfh_no}
+		]]>
+	</select>
+	
+	
+	<!-- 말머리 작성 -->
+	<insert id="insertHeadline">
+		<![CDATA[
+			INSERT INTO MST_BF_Headline(mst_bfh_no, mst_bfh_headline) 
+			VALUES
+			#{mst_bfh_no}, #{mst_bfh_headline}
+		]]>
+	</insert>
+	
+	
+	<!-- 게시글 조회수 출력 -->
+	<update id="viewCount">
+		<![CDATA[
+			UPDATE Board_Free 
+			SET bf_viewcount = bf_viewcount +1 WHERE bf_no = #{no}
+		]]>
+	</update>
+	
+	
+	<!-- 페이징 -->
+	<select id="getPageCount" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/10) FROM Board_Free	
+		]]>
+	</select>
+
+
+	<!-- 게시글 수정 -->
+	<update id="updateFreeBoard">
+		<![CDATA[
+			UPDATE Board_Free 
+			SET bf_title = #{bf_title},
+				bf_content = #{bf_content}
+			WHERE bf_no = #{bf_no}
+		]]>
+	</update>
+	
+	<!--  게시글 삭제 -->
+	<delete id="deleteFreeBoard">
+		<![CDATA[
+			DELETE FROM Board_Free WHERE bf_no = #{no}
+		]]>
+	</delete>
+	
+	
+	<!-- 댓글 개수 카운트-->
+	<update id="countComment">
+		<![CDATA[
+			UPDATE Board_Free SET cbf_count = cbf_count + #{amount} WHERE bf_no = #{bf_no}
+		]]>
+	</update>
+	
+
+</mapper>

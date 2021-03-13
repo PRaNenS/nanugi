@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.freeboard.mapper.FreeBoardReportSQLMapper">
+
+	<!-- 자유게시글 신고 insert -->
+	<insert id="insertReport">
+		<![CDATA[
+			INSERT INTO Report_BF VALUES(
+		    	Report_BF_seq.nextval,
+		    	#{bf_no},
+		    	#{m_no},
+		    	#{rbf_content},
+		    	SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<!-- 자유게시글 신고 main -->
+	<select id="selectReportAll" resultType="com.give.donagi.vo.ReportBFVo">
+		<![CDATA[
+			SELECT * FROM
+			(
+			SELECT rb1.*, ROWNUM as rnum
+			FROM
+			(SELECT * FROM Report_BF ORDER BY rbf_no DESC) rb1
+			) rb2
+			WHERE rb2.rnum >= (#{page_no}-1) * 10 + 1
+			AND rb2.rnum <= #{page_no} * 10
+		]]>
+	</select>
+	
+	<!-- 자유게시글 신고내역 상세 보기 -->
+	<select id="selectByNo" resultType="com.give.donagi.vo.ReportBFVo">
+		<![CDATA[
+			SELECT * FROM Report_BF WHERE 
+				rbf_no = #{rbf_no}
+		]]>
+	</select>
+	
+	<select id="getReportPageCount" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/10) FROM Report_BF	
+		]]>
+	</select>
+</mapper>

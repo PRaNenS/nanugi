@@ -1,0 +1,334 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.funding.mapper.UserFundingSQLMapper">
+
+	<select id="createMSTFNo" resultType="int">
+		<![CDATA[
+			SELECT MST_Funding_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="selectMSTFCategory" resultType="com.give.donagi.vo.MSTFCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Category
+		]]>
+	</select>
+	
+	<select id="selectCategoryByNo" resultType="com.give.donagi.vo.MSTFCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Category 
+			WHERE mst_fc_no = #{mst_fc_no}
+		]]>
+	</select>
+	
+	<insert id="insertMSTFunding">
+		<![CDATA[
+			INSERT INTO MST_Funding 
+			VALUES(
+				#{mst_f_no}, 
+				#{m_no},
+				#{mst_fc_no},
+				0, 
+				#{mst_f_title},
+				#{mst_f_date_from},
+				#{mst_f_date_to},
+				#{mst_f_date_end},
+				#{mst_f_goal},
+				#{mst_f_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="createMSTFoNo" resultType="int">
+		<![CDATA[
+			SELECT MST_F_Option_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertMSTFOption">
+		<![CDATA[
+			INSERT INTO MST_F_OPTION 
+			VALUES(
+				#{mst_fo_no},
+				#{mst_f_no},
+				#{mst_fo_name},
+				#{mst_fo_price}
+			)
+		]]>
+	</insert>
+	
+	<select id="createMSTFiNo" resultType="int">
+		<![CDATA[
+			SELECT MST_F_Img_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertMSTFImg">
+		<![CDATA[
+			INSERT INTO MST_F_Img 
+			VALUES(
+				#{mst_fi_no}, 
+				#{mst_f_no}, 
+				#{mst_fi_img_link}
+			)
+		]]>
+	</insert>
+	
+	<select id="selectFundingStatusByNo" resultType="com.give.donagi.vo.MSTFStatusVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Status 
+			WHERE mst_fs_no = #{mst_fs_no}
+		]]>
+	</select>
+
+	<select id="searchForPageCount" parameterType="map" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/12)  
+			FROM MST_Funding mstf,
+					 Member			 mem 
+			WHERE mstf.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+		  AND		mstf.mst_f_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+		  AND		mstf.mst_f_date_from <= SYSDATE 
+			AND		mstf.mst_f_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+		  AND   mstf.mst_f_date_to < SYSDATE 
+			]]>
+		</if>
+		<if test="categoryNo != null">
+			<![CDATA[
+					AND		mst_fc_no = #{categoryNo}
+			]]>
+		</if>
+	</select>
+	
+	<select id="selectThumnailByFNo" resultType="com.give.donagi.vo.MSTFImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Img 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</select>
+	
+	<select id="selectFundingList" parameterType="map" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT mstf.* 
+					FROM MST_Funding mstf,
+							 Member			 mem 
+					WHERE mstf.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		mstf.mst_f_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		mstf.mst_f_date_from <= SYSDATE 
+					AND		mstf.mst_f_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+				  AND   mstf.mst_f_date_to < SYSDATE 
+			]]>
+		</if>
+		<if test="categoryNo != null">
+			<![CDATA[
+					AND		mst_fc_no = #{categoryNo}
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY mstf.mst_f_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= (${currentPage}-1)*12 + 1 
+			AND		t2.rnum <= ${currentPage}*12	
+		]]>
+	</select>
+	
+	<select id="selectFundingByNo" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_Funding 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</select>
+	
+	<select id="selectOptionByFundingNo" resultType="com.give.donagi.vo.MSTFOptionVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Option 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</select>
+	
+	<select id="selectOptionByNo" resultType="com.give.donagi.vo.MSTFOptionVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Option 
+			WHERE mst_fo_no = #{mst_fo_no}
+		]]>
+	</select>
+	
+	<select id="createOrderNo" resultType="int">
+		<![CDATA[
+			SELECT Order_F_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="selectOrderStatus" resultType="com.give.donagi.vo.MSTOStatusVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_O_Status 
+			WHERE mst_os_no = #{mst_os_no}
+		]]>
+	</select>
+	
+	<insert id="insertOrder">
+		<![CDATA[
+			INSERT INTO Order_F 
+			VALUES(
+				#{of_no}, 
+				#{mst_f_no}, 
+				#{m_no}, 
+				#{mst_os_no}, 
+				#{of_receiver}, 
+				#{of_zip}, 
+				#{of_address1}, 
+				#{of_address2}, 
+				#{of_request}, 
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="createOrderDetailNo" resultType="int">
+		<![CDATA[
+			SELECT O_Detail_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertOrderDetail">
+		<![CDATA[
+			INSERT INTO O_Detail 
+			VALUES(
+				#{od_no}, 
+				#{of_no}, 
+				#{mst_fo_no}, 
+				#{od_quantity}
+			)
+		]]>
+	</insert>
+	
+	<select id="selectOrderList" resultType="com.give.donagi.vo.OrderFVo">
+		<![CDATA[
+			SELECT * 
+			FROM Order_F 
+			WHERE m_no = #{m_no}
+			ORDER BY of_no DESC
+		]]>
+	</select>
+	
+	<select id="selectOrderDetailsByOrderNo" resultType="com.give.donagi.vo.ODetailVo">
+		<![CDATA[
+			SELECT * 
+			FROM O_Detail 
+			WHERE of_no = #{of_no}
+		]]>
+	</select>
+	
+	<select id="selectFundingListByMemberNo" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_Funding 
+			WHERE m_no = #{m_no}
+			ORDER BY mst_f_no DESC
+		]]>
+	</select>
+	
+	<select id="selectOrderListByFundingNo" resultType="com.give.donagi.vo.OrderFVo">
+		<![CDATA[
+			SELECT * 
+			FROM Order_F 
+			WHERE mst_f_no = #{mst_f_no} 
+			ORDER BY of_no DESC
+		]]>
+	</select>
+	
+	<select id="selectAllFunding" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_Funding
+		]]>
+	</select>
+	
+	<select id="selectAllOrder" resultType="com.give.donagi.vo.OrderFVo">
+		<![CDATA[
+			SELECT * 
+			FROM Order_F 
+		]]>
+	</select>
+	
+	<select id="selectOrderByNo" resultType="com.give.donagi.vo.OrderFVo">
+		<![CDATA[
+			SELECT * 
+			FROM Order_F 
+			WHERE of_no = #{of_no}
+		]]>
+	</select>
+		
+	<update id="updateDeliveryStatus" parameterType="map">
+		<![CDATA[
+			UPDATE OF_Delivery 
+		]]>
+		<if test="ofd_flg == 2">
+			<![CDATA[
+				SET ofd_flg = 2,
+			]]>
+		</if>
+		<![CDATA[
+					ofd_date = SYSDATE 
+			WHERE of_no = #{of_no}
+		]]>
+	</update>
+	
+	<delete id="deleteFundingByNo">
+		<![CDATA[
+			DELETE FROM MST_Funding 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</delete>
+	
+	<delete id="deleteOptionByFundingNo">
+		<![CDATA[
+			DELETE FROM MST_F_Option 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</delete>
+		
+</mapper>

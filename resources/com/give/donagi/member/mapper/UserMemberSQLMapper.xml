@@ -1,0 +1,210 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.member.mapper.UserMemberSQLMapper">
+
+	<select id="createMNo" resultType="int">
+		<![CDATA[
+			SELECT Member_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+
+	<insert id="joinMember">
+		<![CDATA[
+			INSERT INTO Member 
+			VALUES(
+				#{m_no},
+				2,
+				#{m_id},
+				#{m_pw},
+				#{m_nick},
+				#{m_name},
+				#{m_zip},
+				#{m_address1}, 
+				#{m_address2}, 
+				#{m_email},
+				#{m_tel},
+				#{m_gender},
+				#{m_birth},
+				#{m_uniqnum},
+				#{m_profile_img_link},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<insert id="insertMAuth">
+		<![CDATA[
+			INSERT INTO M_Auth 
+			VALUES(
+				#{m_no},
+				#{ma_auth_key},
+				0,
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<update id="updateMAuth">
+		<![CDATA[
+			UPDATE M_Auth 
+			SET ma_auth_flg = 1 
+			WHERE ma_auth_key = #{ma_auth_key}
+		]]>
+	</update>
+	
+	<select id="existId" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * 
+			FROM Member 
+			WHERE m_id = #{m_id}
+		]]>
+	</select>
+	
+	<insert id="joinMPoint">
+		<![CDATA[
+			INSERT INTO M_Point 
+			VALUES(
+				#{m_no},
+				0
+			)
+		]]>
+	</insert>
+	
+	<select id="loginMember" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * 
+			FROM Member
+			WHERE m_id = #{m_id} 
+			AND		m_pw = #{m_pw}
+		]]>
+	</select>
+	
+	<select id="selectByNo" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * 
+			FROM Member 
+			WHERE m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="selectPoint" resultType="com.give.donagi.vo.MPointVo">
+		<![CDATA[
+			SELECt * 
+			FROM M_Point 
+			WHERE m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="selectUserType" resultType="com.give.donagi.vo.MSTMTypeVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_M_Type 
+			WHERE mst_mt_no = #{mst_mt_no}
+		]]>
+	</select>
+	
+	<select id="searchNoByNick" parameterType="map" resultType="Integer">
+		<![CDATA[
+			SELECT m_no 
+			FROM Member 
+			WHERE m_nick LIKE '%${keyword}%'
+		]]>
+	</select>
+	
+	<update id="updatePassword">
+		<![CDATA[
+			UPDATE Member 
+			SET m_pw = #{m_pw}
+			WHERE m_no = #{m_no}
+		]]>
+	</update>
+	
+	<update id="updateUser">
+		<![CDATA[
+			UPDATE Member 
+			SET m_nick = #{m_nick}, 
+					m_name = #{m_name}, 
+					m_zip = #{m_zip}, 
+					m_address1 = #{m_address1}, 
+					m_address2 = #{m_address2}, 
+					m_email = #{m_email}, 
+					m_tel = #{m_tel}
+			WHERE m_no = #{m_no}
+		]]>
+	</update>
+	
+	<update id="updateProfile">
+		<![CDATA[
+			UPDATE Member 
+			SET m_profile_img_link = #{m_profile_img_link} 
+			WHERE m_no = #{m_no}
+		]]>
+	</update>
+	
+	<select id="selectUpdateUser" resultType="com.give.donagi.vo.MRequestComVo">
+		<![CDATA[
+			select *
+			from m_request_Com
+		]]>
+	</select>
+	
+	<delete id="deleteRequest">
+		<![CDATA[
+			DELETE FROM m_request_Com
+			WHERE MRC_NO =#{MRC_NO}
+		]]>
+	</delete>
+	
+	<update id="updateApprovedFlg">
+		<![CDATA[
+			update m_request_Com set mrc_approved_flg = 1
+			WHERE M_no =#{m_no}
+		]]>
+	</update>
+	
+	<select id="selectRequstByBNo" resultType="com.give.donagi.vo.MRequestComVo">
+		<![CDATA[
+			select *
+			from m_request_Com
+			WHERE M_no =#{m_no}
+		]]>
+	</select>
+	
+	<update id="updateRMember"> <!-- 기관유저 승인 유저정보 변경 -->
+		<![CDATA[
+			update member 
+			set Mst_mt_no = 3,
+			m_uniqnum = #{m_uniqnum},
+			m_tel = #{m_tel},
+			m_nick = #{m_nick},
+			m_name = #{m_name},
+			m_birth = #{m_birth},
+			m_address1 = #{m_address1},
+			m_address2 = #{m_address2},
+			m_zip = #{m_zip}
+			where m_no =#{m_no}
+		
+		]]>
+	</update> 
+	
+	<select id="selectUserForId" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * 
+			FROM Member 
+			WHERE m_name = #{m_name} 
+			AND		m_tel = #{m_tel}
+		]]>
+	</select>
+	
+	<select id="selectUserForPw" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * 
+			FROM Member 
+			WHERE m_id = #{m_id} 
+			AND		m_email = #{m_email}
+		]]>
+	</select>
+</mapper>

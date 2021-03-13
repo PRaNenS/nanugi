@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.freeboard.mapper.FreeBoardCommentSQLMapper">
+
+
+	<!-- 댓글 작성 -->
+	<insert id="insertComment">
+		<![CDATA[
+			INSERT INTO Comment_BF VALUES(
+		    	Comment_BF_seq.nextval,
+		    	#{bf_no},
+		    	#{m_no},
+		    	#{cbf_content},
+		    	SYSDATE
+			)
+		]]>
+	</insert>	
+
+	<!-- 댓글 목록 -->
+	<select id="selectComment" resultType="com.give.donagi.vo.CommentBFVo">
+		<![CDATA[
+			SELECT * FROM Comment_BF WHERE bf_no = #{bf_no}
+			ORDER BY cbf_no ASC
+		]]>
+	</select>
+	
+
+	<!-- 댓글 수정 -->
+	<update id="updateComment">
+	<![CDATA[
+		UPDATE Comment_BF SET cbf_content = #{cbf_content} WHERE cbf_no = #{cbf_no}
+	]]>
+	</update>
+	
+	
+	
+	<!-- 댓글 삭제 -->
+	<delete id="deleteComment">
+	<![CDATA[
+		DELETE FROM Comment_BF WHERE cbf_no = #{cbf_no}
+	]]>
+	</delete>
+
+	
+</mapper>

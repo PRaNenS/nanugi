@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.event.mapper.UserEventSQLMapper">
+
+	<select id="createEventKey" resultType="int">
+		<![CDATA[
+			SELECT B_Event_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="createEvent">
+		<![CDATA[
+			INSERT INTO B_Event 
+			VALUES(
+				#{be_no},
+				#{m_no},
+				#{be_title},
+				#{be_date_from},
+				#{be_date_to},
+				#{be_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="createImgKey" resultType="int">
+		<![CDATA[
+			SELECT BE_Img_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertEventImg">
+		<![CDATA[
+			INSERT INTO BE_Img 
+			VALUES(
+				#{bei_no}, 
+				#{be_no}, 
+				#{bei_img_link}
+			)
+		]]>
+	</insert>
+	
+	<select id="getPageCount" parameterType="map" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/12)  
+			FROM B_Event bev,
+					 Member	 mem 
+			WHERE bev.m_no = mem.m_no 
+		]]>
+		<if test="type == 1">
+			<![CDATA[
+			AND	  bev.be_title LIKE '%${keyword}%' 
+			]]>
+		</if>
+		<if test="type == 2">
+			<![CDATA[
+			AND		mem.m_nick LIKE '%${keyword}%' 
+			]]>
+		</if>
+		<if test="status == 1">
+			<![CDATA[
+	  	AND		bev.be_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+		  AND		bev.be_date_from <= SYSDATE 
+			AND		bev.be_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status ==3">
+			<![CDATA[
+	  	AND   bev.be_date_to < SYSDATE 
+			]]>
+		</if>
+	</select>
+	
+	<select id="selectAllEvent" parameterType="map" resultType="com.give.donagi.vo.BEventVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT bev.* 
+					FROM B_Event bev,
+							 Member	 mem 
+					WHERE bev.m_no = mem.m_no 
+		]]>
+		<if test="type == 1">
+			<![CDATA[
+					AND	  bev.be_title LIKE '%${keyword}%' 
+			]]>
+		</if>
+		<if test="type == 2">
+			<![CDATA[
+					AND		mem.m_nick LIKE '%${keyword}%' 
+			]]>
+		</if>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		bev.be_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		bev.be_date_from <= SYSDATE 
+					AND		bev.be_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status ==3">
+			<![CDATA[
+				  AND   bev.be_date_to < SYSDATE 
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY bev.be_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= (${currentPage}-1)*12 + 1 
+			AND		t2.rnum <= ${currentPage}*12	
+		]]>
+	</select>
+	
+	<select id="selectImgByEventNo" resultType="com.give.donagi.vo.BEImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM BE_Img 
+			WHERE be_no = #{be_no}
+		]]>
+	</select>
+	
+	<select id="selectEventByNo" resultType="com.give.donagi.vo.BEventVo">
+		<![CDATA[
+			SELECT * 
+			FROM B_Event 
+			WHERE be_no = #{be_no} 
+		]]>
+	</select>
+	
+	<delete id="deleteEvent">
+		<![CDATA[
+			DELETE FROM B_Event 
+			WHERE be_no = #{be_no}
+		]]>
+	</delete>
+	
+	<select id="createCommentKey" resultType="int">
+		<![CDATA[
+			SELECT Comment_BE_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="writeComment">
+		<![CDATA[
+			INSERT INTO Comment_BE 
+			VALUES(
+				#{cbe_no}, 
+				#{be_no}, 
+				#{m_no}, 
+				#{cbe_content}, 
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectAllCommentByEventNo" resultType="com.give.donagi.vo.CommentBEVo">
+		<![CDATA[
+			SELECT * 
+			FROM Comment_BE 
+			WHERE be_no = #{be_no} 
+			ORDER BY cbe_no DESC
+		]]>
+	</select>
+	
+	<delete id="deleteComment">
+		<![CDATA[
+			DELETE FROM Comment_BE 
+			WHERE cbe_no = #{cbe_no}
+		]]>
+	</delete>
+
+</mapper>

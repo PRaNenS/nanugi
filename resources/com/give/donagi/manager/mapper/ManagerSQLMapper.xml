@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.manager.mapper.ManagerSQLMapper">
+	<select id="selectfreeByBFNo" resultType="com.give.donagi.vo.BoardFreeVo"> <!-- 자유게시판 신고당한 유저 -->
+		<![CDATA[
+			select * from board_Free
+			where bf_no = #{bf_no}
+		]]>
+	</select>
+	
+	<select id="selectVReviewByRVNo" resultType="com.give.donagi.vo.ReviewVolunteerVo"> <!-- 자유게시판 신고당한 유저 -->
+		<![CDATA[
+			select * from review_volunteer
+			where rv_no = #{rv_no}
+		]]>
+	</select>
+	
+	<select id="selectFunReviewByRERFNo" resultType="com.give.donagi.vo.ReviewFundingVo"> <!-- 자유게시판 신고당한 유저 -->
+		<![CDATA[
+			select * from review_funding
+			where rf_no = #{rf_no}
+		]]>
+	</select>
+	
+	<insert id="insetLimit">
+		<![CDATA[
+			insert into m_limit values
+			(
+				#{m_no},
+				1,
+				sysdate +3
+			)
+		]]>
+	</insert>
+	
+	<select id="LimitFlg" resultType="int">
+		<![CDATA[
+			select count(ml_limit_flg) from m_limit
+			where m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="isPenalty" resultType="int">
+		<![CDATA[
+			select count(*) from m_limit
+			where m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="selectLimtByMNo" resultType="com.give.donagi.vo.MLimitVo">
+		<![CDATA[
+			select * from m_limit
+			where m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="selectLimitAll" resultType="com.give.donagi.vo.MLimitVo">
+		<![CDATA[
+			SELECT * FROM M_LIMIT
+		]]>
+	</select>
+	
+	<delete id="deleteLimit">
+		delete from M_LIMIT where m_no = #{m_no}
+	</delete>
+	
+	<select id="selectMember" resultType="com.give.donagi.vo.MemberVo">
+		<![CDATA[
+			SELECT * FROM member
+		]]>
+	</select>
+	
+	<select id="memberType" resultType="com.give.donagi.vo.MSTMTypeVo">
+		<![CDATA[
+			SELECT * FROM mst_m_type
+			where mst_mt_no = #{mst_mt_no}
+		]]>
+	</select>
+	
+	<select id="memberStatus" resultType="int">
+		<![CDATA[
+			SELECT count(*) FROM m_limit
+			where m_no = #{m_no}
+		]]>
+	</select>
+</mapper>

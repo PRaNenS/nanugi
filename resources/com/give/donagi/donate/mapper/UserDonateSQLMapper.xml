@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.donate.mapper.UserDonateSQLMapper">
+
+	<select id="createMSTDNo" resultType="int">
+		<![CDATA[
+			SELECT MST_Donate_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="selectMSTDCategory" resultType="com.give.donagi.vo.MSTDCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_D_Category
+		]]>
+	</select>
+	
+	<select id="selectCategoryByNo" resultType="com.give.donagi.vo.MSTDCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_D_Category 
+			WHERE mst_dc_no = #{mst_dc_no}
+		]]>
+	</select>
+	
+	<insert id="insertMSTDonate">
+		<![CDATA[
+			INSERT INTO MST_Donate 
+			VALUES(
+				#{mst_d_no}, 
+				#{mst_dc_no}, 
+				#{m_no},
+				#{mst_d_title},
+				#{mst_d_date_from},
+				#{mst_d_date_to},
+				#{mst_d_goal},
+				#{mst_d_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<insert id="insertDonateImg">
+		<![CDATA[
+			INSERT INTO MST_D_Img 
+			VALUES(
+				MST_D_Img_seq.nextval, 
+				#{mst_d_no}, 
+				#{mst_di_img_link}
+			)
+		]]>
+	</insert>
+	
+	<select id="searchForPageCount" parameterType="map" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/12)  
+			FROM MST_Donate mstd,
+					 Member			 mem 
+			WHERE mstd.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+		  AND		mstd.mst_d_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+		  AND		mstd.mst_d_date_from <= SYSDATE 
+			AND		mstd.mst_d_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+		  AND   mstd.mst_d_date_to < SYSDATE 
+			]]>
+		</if>
+		<if test="categoryNo != null">
+			<![CDATA[
+					AND		mst_dc_no = #{categoryNo}
+			]]>
+		</if>
+	</select>
+	
+	<select id="selectThumnailByDNo" resultType="com.give.donagi.vo.MSTDImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_D_Img 
+			WHERE mst_d_no = #{mst_d_no}
+		]]>
+	</select>
+	
+	<select id="selectDonateList" parameterType="map" resultType="com.give.donagi.vo.MSTDonateVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT mstd.* 
+					FROM MST_Donate mstd,
+							 Member			 mem 
+					WHERE mstd.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		mstd.mst_d_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		mstd.mst_d_date_from <= SYSDATE 
+					AND		mstd.mst_d_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+				  AND   mstd.mst_d_date_to < SYSDATE 
+			]]>
+		</if>
+		<if test="categoryNo != null">
+			<![CDATA[
+					AND		mst_dc_no = #{categoryNo}
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY mstd.mst_d_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= (${currentPage}-1)*12 + 1 
+			AND		t2.rnum <= ${currentPage}*12	
+		]]>
+	</select>
+	
+	<select id="selectDonateByNo" resultType="com.give.donagi.vo.MSTDonateVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_Donate 
+			WHERE mst_d_no = #{mst_d_no}
+		]]>
+	</select>
+	
+	<select id="selectPointByMSTDNo" resultType="com.give.donagi.vo.DonateDVo">
+		<![CDATA[
+			SELECT *  
+			FROM Donate_D 
+			WHERE mst_d_no = #{mst_d_no}
+		]]>
+	</select>
+	
+	<insert id="insertDonateD">
+		<![CDATA[
+			INSERT INTO Donate_D 
+			VALUES(
+				Donate_D_seq.nextval,
+				#{mst_d_no},
+				#{m_no},  
+				#{dd_donate_point},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+</mapper>

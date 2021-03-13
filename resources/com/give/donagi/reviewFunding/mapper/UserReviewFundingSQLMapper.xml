@@ -1,0 +1,123 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.reviewFunding.mapper.UserReviewFundingSQLMapper"> 
+
+	<select id="createRFNo" resultType="int">
+		<![CDATA[
+			SELECT Review_Funding_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+
+	<insert id="insert">
+		<![CDATA[
+			INSERT INTO Review_Funding
+			VALUES(
+				#{rf_no}, 
+				#{of_no}, 
+				#{m_no}, 
+				#{rf_title}, 
+				#{rf_content}, 
+				#{rf_score},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectAll" resultType="com.give.donagi.vo.ReviewFundingVo">
+		<![CDATA[
+			SELECT * 
+		FROM (
+		    SELECT c1.*,ROWNUM as rnum 
+		    FROM (
+		        SELECT * 
+		        FROM Review_Funding 
+		        ORDER BY rf_no DESC) c1
+		    ) c2
+		WHERE c2.rnum >= (#{page_num}-1)*10+1 
+		AND c2.rnum <= #{page_num}*10
+		]]>
+	</select>
+	
+	<select id="selectByNo" resultType="com.give.donagi.vo.ReviewFundingVo">
+		SELECT * FROM Review_Funding WHERE rf_no = #{no}
+	</select>
+
+	<delete id="deleteByNo">
+	<![CDATA[
+		DELETE FROM Review_Funding WHERE rf_no = #{no}
+	]]>
+	</delete>
+
+	<update id="update">
+	<![CDATA[
+		UPDATE Review_Funding 
+		SET rf_title=#{rf_title},rf_content=#{rf_content},rf_score=#{rf_score}
+		WHERE rf_no = #{rf_no}		
+	]]>
+	</update>
+	
+	<select id="selectofByOFNo" resultType="com.give.donagi.vo.OrderFVo">
+		select * from order_f where of_no =#{of_no}
+	</select>
+
+
+	<select id="selectreviewByno" resultType="com.give.donagi.vo.ReviewFundingVo">
+	<![CDATA[
+		SELECT rf.* FROM Review_Funding rf, Order_F ff
+		WHERE rf.of_no = ff.of_no
+		AND ff.mst_f_no = #{mst_f_no}
+		ORDER BY rf_no DESC
+	]]>
+	</select>
+
+	<select id="countOFNo" resultType="int">
+	<![CDATA[
+		SELECT count(*) FROM Review_Funding
+			where of_no = #{of_no}
+	]]>
+	</select>
+
+	<select id="getPageCount" resultType="int">
+	<![CDATA[
+		SELECT CEIL(COUNT(*)/10) FROM Review_Funding
+	]]>			
+	</select>
+	
+	<select id="selectByTitle" resultType="com.give.donagi.vo.ReviewFundingVo">
+	<![CDATA[
+		SELECT * FROM Review_Funding 
+		WHERE rf_title LIKE '%' || #{search_word} || '%'
+		ORDER BY rf_no DESC
+	]]>
+	</select>
+
+	<select id="selectByContent" resultType="com.give.donagi.vo.ReviewFundingVo">
+	<![CDATA[
+		SELECT * FROM Review_Funding 
+		WHERE rf_content LIKE '%' || #{search_word} || '%'
+		ORDER BY rf_no DESC
+	]]>
+	</select>
+
+	<select id="selectByWriter" resultType="com.give.donagi.vo.ReviewFundingVo">
+	<![CDATA[
+		SELECT c.* FROM Review_Funding c , Member m
+		WHERE m.m_no = c.m_no
+		AND m.m_nick LIKE '%' || #{search_word} || '%'
+		ORDER BY rf_no DESC
+	]]>
+	</select>
+	
+	
+	<select id="reportByNo" resultType="com.give.donagi.vo.ReportRFVo">
+	<![CDATA[
+		SELECT * FROM Report_RF ORDER BY rerf_no DESC
+	]]>	
+	</select>
+	
+	
+	
+</mapper>

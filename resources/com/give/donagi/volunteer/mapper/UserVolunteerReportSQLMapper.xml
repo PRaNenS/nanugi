@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.give.donagi.volunteer.mapper.UserVolunteerReportSQLMapper">
+
+<!-- 신고 -->
+	<insert id="insertReport">
+		<![CDATA[
+			INSERT INTO Report_RV VALUES(
+				Report_RV_seq.nextval,
+				#{rv_no},
+				#{m_no},
+		    	#{rerv_content},
+		    	0,
+		    	SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectReportAll" resultType="com.give.donagi.vo.ReportRVVo">
+		<![CDATA[
+			SELECT * FROM
+			(
+			SELECT rf1.*, ROWNUM as rnum
+			FROM
+			(SELECT * FROM Report_RV ORDER BY rerv_no DESC) rf1
+			) rf2
+			WHERE rf2.rnum >= (#{page_no}-1) * 10 + 1
+			AND rf2.rnum <= #{page_no} * 10
+		]]>
+	</select>
+	
+	<select id="selectByRvNo" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT * FROM Review_Volunteer WHERE 
+			rv_no = #{rv_no}
+		]]>
+	</select>
+	
+	<select id="getReportPageCount" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/10) FROM Report_RV
+		]]>
+	</select>
+	
+
+
+
+</mapper>

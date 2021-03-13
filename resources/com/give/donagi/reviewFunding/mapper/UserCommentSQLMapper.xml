@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.reviewFunding.mapper.UserCommentSQLMapper">
+
+	<select id="createCRFNo" resultType="int">
+		<![CDATA[
+			SELECT Comment_RF_seq.nextval FROM Dual
+		]]>	
+		</select>
+
+
+	<insert id="insert">
+	<![CDATA[
+		INSERT INTO Comment_RF VALUES(
+		 	  #{crf_no},
+		 	  #{rf_no},
+			  #{m_no},
+		 	  #{crf_content},
+		 	  SYSDATE
+		)			
+	]]>	
+	</insert>
+	
+	<select id="selectByCommentNo" resultType="com.give.donagi.vo.CommentRFVo">
+	<![CDATA[
+		SELECT * FROM Comment_RF WHERE rf_no = #{rf_no}
+		ORDER BY crf_no ASC
+	]]>	
+	</select>
+	
+	<delete id="reviewDelete">
+		<![CDATA[
+			DELETE from Comment_RF where crf_no = #{crf_no} 
+		]]>
+		
+	</delete>
+	
+
+	<select id="reviewCount" resultType="int">
+		SELECT count(*) FROM Comment_RF where rf_no = #{rf_no}
+	</select>
+
+
+
+
+
+</mapper>
+
+
+
+
+
+
+

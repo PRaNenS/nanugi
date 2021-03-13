@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.freeboard.mapper.FreeBoardImageSQLMapper">
+
+	
+	<!-- 이미지 업로드 -->
+	<insert id="uploadImage">
+	<![CDATA[
+		INSERT INTO BF_Img_Link VALUES(
+			BF_Img_Link_seq.nextval,
+			#{bf_no},
+			#{bfil_path})
+	]]>
+	</insert>
+	
+	
+	<!-- 이미지 출력 -->
+	<select id="selectImage" resultType="com.give.donagi.vo.BFImgLinkVo">
+	<![CDATA[
+		SELECT * FROM BF_Img_Link WHERE bf_no = #{bf_no}
+	]]>
+	</select>
+	
+	
+	
+	<select id="createKey" resultType="int">
+		<![CDATA[
+			SELECT BF_Img_Link_seq.nextval FROM DUAL
+		]]>
+	</select>
+	
+</mapper>

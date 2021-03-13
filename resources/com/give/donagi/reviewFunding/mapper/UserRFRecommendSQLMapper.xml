@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+
+<mapper namespace="com.give.donagi.reviewFunding.mapper.UserRFRecommendSQLMapper">
+
+<select id="createRRFNo" resultType="int">
+		<![CDATA[
+			SELECT Recommend_RF_seq.nextval FROM Dual
+		]]>	
+		</select>
+
+	<insert id="insert">
+		<![CDATA[
+			insert into Recommend_RF VALUES(#{rrf_no}, #{rf_no}, #{m_no} ,SYSDATE)
+		]]>
+	</insert>
+
+<!--유효성  -->
+	<select id="selectByNo" resultType="com.give.donagi.vo.RecommendRFVo">
+		SELECT * FROM Recommend_RF where rf_no = #{rf_no} and m_no = #{m_no}	
+	</select>
+
+<!--추천삭제  -->
+	<delete id="deleteByNo">
+		DELETE from Recommend_RF where rf_no = #{rf_no} and m_no = #{m_no}
+	</delete>
+	
+	<select id="likeCount" resultType="int">
+		SELECT count(*) FROM Recommend_RF where rf_no= #{rf_no}
+	</select>
+
+	
+
+</mapper>

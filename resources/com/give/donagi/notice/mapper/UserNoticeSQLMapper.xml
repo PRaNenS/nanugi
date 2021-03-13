@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.notice.mapper.UserNoticeSQLMapper">
+	
+	<select id="createNNo" resultType="int"><!-- 공지사항 글 번호 -->
+		<![CDATA[
+			SELECT B_NOTICE_seq.nextval
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="selectAll" resultType="com.give.donagi.vo.BNoticeVo">
+		<![CDATA[
+			select * 
+			from( select c1.*, rownum as rnum 
+			    from
+			        (select * from B_NOTICE order by bn_no desc) c1
+			    ) c2
+			where c2.rnum >=(#{page_num}-1)*10+1 
+			and c2.rnum<=#{page_num}*10
+		]]>
+	</select>
+	
+	<select id="getPageCount" resultType="int">
+		<![CDATA[
+				select ceil(count(*)/10) from B_notice
+		]]>
+	</select>
+	
+	<select id="selectByNo" resultType="com.give.donagi.vo.BNoticeVo">
+		<![CDATA[
+			select * from b_notice where bn_no = #{no}
+		]]>
+	</select>
+	
+	<select id="deleteByBNo" resultType="com.give.donagi.vo.BNoticeVo">
+		delete from b_notice where bn_no=#{no}
+	</select>
+	
+	<select id="update" resultType="com.give.donagi.vo.BNoticeVo">
+		update b_notice
+		set bn_title = #{bn_title},
+		bn_content = #{bn_content}
+		where bn_no = #{bn_no}
+	</select>
+	
+	<insert id="insert">
+		<![CDATA[
+			insert into b_notice values
+			(
+				#{bn_no},
+				#{m_no},
+				#{bn_title},
+				#{bn_content}, 
+				sysdate
+			)
+		]]>
+	</insert>
+</mapper>

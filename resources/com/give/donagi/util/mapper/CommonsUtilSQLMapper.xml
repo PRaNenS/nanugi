@@ -1,0 +1,118 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.util.mapper.CommonsUtilSQLMapper">
+
+	<select id="selectEventBanner1" resultType="com.give.donagi.vo.BEImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT bei.* 
+					FROM BE_Img  bei,
+							 B_Event bev 
+					WHERE bei.be_no = bev.be_no 
+				  AND		bev.be_date_from <= SYSDATE 
+					AND		bev.be_date_to >= to_char(SYSDATE-1) 
+					ORDER BY bei.bei_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum = 1 
+		]]>
+	</select>
+	
+	<select id="selectEventBanner2" resultType="com.give.donagi.vo.BEImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT bei.* 
+					FROM BE_Img  bei,
+							 B_Event bev 
+					WHERE bei.be_no = bev.be_no 
+				  AND		bev.be_date_from <= SYSDATE 
+					AND		bev.be_date_to >= to_char(SYSDATE-1) 
+					ORDER BY bei.bei_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum = 2 
+		]]>
+	</select>
+	
+	<select id="selectEventBanner3" resultType="com.give.donagi.vo.BEImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT bei.* 
+					FROM BE_Img  bei,
+							 B_Event bev 
+					WHERE bei.be_no = bev.be_no 
+				  AND		bev.be_date_from <= SYSDATE 
+					AND		bev.be_date_to >= to_char(SYSDATE-1) 
+					ORDER BY bei.bei_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum = 3 
+		]]>
+	</select>
+
+	<select id="lookupPoint" resultType="com.give.donagi.vo.MPointVo">
+		<![CDATA[
+			SELECT * 
+			FROM M_Point 
+			WHERE m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="getMRecordP" parameterType="map" resultType="com.give.donagi.vo.MRecordPVo">
+		<![CDATA[
+			SELECT * 
+			FROM M_Record_P 
+			WHERE m_no = ${m_no} 
+		]]>
+		<if	test="date_from != null and date_to != null">
+			<![CDATA[
+				AND m_rp_record_date BETWEEN TO_DATE('${date_from}', 'YYYY-MM-DD') AND TO_DATE('${date_to}', 'YYYY-MM-DD') 
+			]]>
+		</if>
+		<![CDATA[
+			ORDER BY m_rp_no DESC
+		]]>
+	</select>
+	
+	<update id="updatePoint">
+		<![CDATA[
+			UPDATE M_Point 
+			SET mp_point = mp_point + #{mp_point} 
+			WHERE m_no = #{m_no}
+		]]>
+	</update>
+	
+	<select id="createMRecordPKey" resultType="int">
+		<![CDATA[
+			SELECT M_Record_P_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insertRecord">
+		<![CDATA[
+			INSERT INTO M_Record_P 
+			VALUES(
+				#{m_rp_no},
+				#{m_no},
+				#{m_rp_type},
+				#{m_rp_object},
+				#{m_rp_point},
+				#{m_rp_record},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+</mapper>

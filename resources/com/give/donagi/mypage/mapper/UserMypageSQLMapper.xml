@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.mypage.mapper.UserMypageSQLMapper">
+
+	<select id="createRequestNo" resultType="int">
+		<![CDATA[
+			SELECT M_Request_Com_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="selectRequestComByMap" resultType="com.give.donagi.vo.MRequestComVo">
+		<![CDATA[
+			SELECT * 
+			FROM M_Request_Com  
+			WHERE m_no = #{m_no}
+		]]>
+	</select>
+	
+	<insert id="insertRequestCom">
+		<![CDATA[
+			INSERT INTO M_Request_Com 
+			VALUES(
+				#{mrc_no}, 
+				#{m_no}, 
+				#{mrc_nick}, 
+				#{mrc_name}, 
+				#{mrc_birth}, 
+				#{mrc_zip}, 
+				#{mrc_address1}, 
+				#{mrc_address2}, 
+				#{mrc_tel}, 
+				#{mrc_uniqnum}, 
+				0, 
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<delete id="deleteOrderByNo">
+		<![CDATA[
+			DELETE FROM Order_F 
+			WHERE of_no = #{of_no}
+		]]>
+	</delete>
+	
+	<delete id="deleteOrderDetailByOrderNo">
+		<![CDATA[
+			DELETE FROM O_Detail 
+			WHERE of_no = #{of_no}
+		]]>
+	</delete>
+	
+	<update id="updateOrder">
+		<![CDATA[
+			UPDATE Order_F 
+			SET of_receiver = #{of_receiver}, 
+					of_zip = #{of_zip}, 
+					of_address1 = #{of_address1}, 
+					of_address2 = #{of_address2}, 
+					of_request = #{of_request} 
+			WHERE of_no = #{of_no}
+		]]>
+	</update>
+	
+	<update id="updateFundingStatus">
+		<![CDATA[
+			UPDATE MST_Funding 
+			SET mst_fs_no = #{mst_fs_no} 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</update>
+	
+	<update id="updateOrderStatus">
+		<![CDATA[
+			UPDATE Order_F 
+			SET mst_os_no = #{mst_os_no} 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</update>
+	
+	<update id="updateDeliveryStatus">
+		<![CDATA[
+			UPDATE Order_F 
+			SET mst_os_no = #{mst_os_no} 
+			WHERE of_no = #{of_no}
+		]]>
+	</update>
+	
+</mapper>

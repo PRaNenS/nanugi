@@ -1,0 +1,507 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.volunteer.mapper.UserVolunteerSQLMapper">
+
+	<select id="selectMSTVCategory" resultType="com.give.donagi.vo.MSTVCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_V_Category
+		]]>
+	</select>
+	
+	<select id="createMSTVNo" resultType="int">
+		<![CDATA[
+			select MST_Volunteer_seq.nextval
+			from dual
+		]]>
+	</select>
+	
+	<select id="createMSTVDNo" resultType="int">
+		<![CDATA[
+			SELECT MST_V_Date_seq.nextval
+			FROM DUAL
+		]]>
+	</select>
+	
+	<select id="createVImgNo" resultType="int">
+		<![CDATA[
+			SELECT v_img_seq.nextval
+			from dual
+		]]>
+	</select>
+	
+	<select id="page" resultType="int">
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/12) 
+			FROM MST_Volunteer
+		]]>
+	</select>
+	
+	<select id="pageCount" parameterType="map" resultType="int"> 
+		<![CDATA[
+			SELECT CEIL(COUNT(*)/12) 
+			FROM MST_Volunteer mstv, Member mem
+			WHERE mstv.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+		  AND		mstv.mst_v_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+		  AND		mstv.mst_v_from <= SYSDATE 
+			AND		mstv.mst_v_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+		  AND   mstv.mst_v_to < SYSDATE 
+			]]>
+		</if>
+	</select>
+	
+	<select id="selectVolunteerList" parameterType="map" resultType="com.give.donagi.vo.MSTVolunteerVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT mstv.* 
+					FROM MST_volunteer mstv,
+							 Member			 mem 
+					WHERE mstv.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		mstv.mst_v_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		mstv.mst_v_from <= SYSDATE 
+					AND		mstv.mst_v_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+				  AND   mstv.mst_v_to < SYSDATE 
+			]]>
+		</if>
+		<if test="categoryNo != null">
+			<![CDATA[
+					AND		mst_vc_no = #{categoryNo}
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY mstv.mst_v_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= (${currentPage}-1)*12 + 1 
+			AND		t2.rnum <= ${currentPage}*12	
+		]]>
+	</select>
+	
+	
+	<insert id="insertMSTVolunteer">
+		<![CDATA[
+			insert into MST_Volunteer
+			values
+			(
+				#{mst_v_no},
+				#{mst_vc_no},
+				#{m_no},
+				#{mst_v_title},
+				#{mst_v_from},
+				#{mst_v_to},
+				#{mst_v_goal},
+				#{mst_v_place},
+				#{mst_v_content},
+				sysdate
+			)
+		]]>
+	</insert>
+	
+	<insert id="insertVImage">
+		<![CDATA[
+			insert into MST_V_IMG VALUES
+			(
+				#{mst_vi_no},
+				#{mst_v_no},
+				#{mst_vi_img_link}
+			)
+		]]>
+	</insert>
+	
+	<insert id="insertMSTDate">
+		<![CDATA[
+			insert into mst_v_date
+			values
+			(
+				#{mst_vd_no},
+				#{mst_v_no},
+				#{mst_vd_date},
+				#{mst_vd_time}
+			)
+		]]>
+	</insert>
+	
+	
+	<select id="selectVolunteerByNo" resultType="com.give.donagi.vo.MSTVolunteerVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_volunteer 
+			WHERE mst_v_no = #{mst_v_no}
+		]]>
+	</select>
+	
+	<select id="selectDateByVolunteerNo" resultType="com.give.donagi.vo.MSTVDateVo">
+		<![CDATA[
+			SELECT * 
+			FROM mst_v_date 
+			WHERE mst_v_no = #{mst_v_no}
+		]]>
+	</select>
+	
+	<select id="selectDateByDateNo" resultType="com.give.donagi.vo.MSTVDateVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_V_DATE
+			WHERE MST_VD_NO = #{mst_vd_no}
+		]]>
+	</select>
+	
+	<select id="createJVNo" resultType="int">
+		<![CDATA[
+			SELECT join_v_seq.nextval 
+			FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="insetJV">
+		<![CDATA[
+			INSERT INTO Join_V values
+			(
+				#{jv_no},
+				#{mst_vd_no},
+				#{mst_v_no},
+				#{m_no},
+				#{mst_vs_no},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="selectJVByMNo" resultType="com.give.donagi.vo.JoinVVo">
+		<![CDATA[
+			select *
+			from join_v
+			where m_no = #{m_no}
+		]]>
+	</select>
+	
+	<select id="selectJVByVNo" resultType="com.give.donagi.vo.JoinVVo">
+		<![CDATA[
+			select * 
+			from join_v
+			where mst_v_no = #{mst_v_no}
+		]]>
+	</select>
+	
+	<select id="selectJoinStatus" resultType="com.give.donagi.vo.MSTVStatusVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_V_STATUS
+			WHERE MST_VS_NO = #{mst_vs_no}
+		]]>
+	</select>
+	
+	<select id="selectdateByVDNo" resultType="com.give.donagi.vo.MSTVDateVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_V_DATE
+			WHERE MST_VD_NO = #{mst_vd_no}
+		]]>
+	</select>
+	
+	<select id="selectVolunteerListByMNo" resultType="com.give.donagi.vo.MSTVolunteerVo">
+		<![CDATA[
+			SELECT *
+			FROM MST_VOLUNTEER
+			WHERE M_NO = #{M_NO}
+			ORDER BY MST_V_NO DESC
+		]]>
+	</select>
+	
+	<select id="selectVImgByVNo" resultType="com.give.donagi.vo.MSTVImgVo">
+		<![CDATA[
+			SELECT *  
+			FROM MST_V_Img
+			WHERE MST_V_NO = #{mst_v_no}
+		]]>
+	</select>
+	
+	<select id="selectVCategoryByVCNo" resultType="com.give.donagi.vo.MSTVCategoryVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_v_CATEGORY
+			WHERE MST_VC_NO = #{mst_vc_no}
+		]]>
+	</select>
+	
+	<select id="JoinCount" resultType="int">
+		<![CDATA[
+			select count(distinct m_no) 
+			from join_v 
+			where mst_v_no = #{mst_v_no}
+			and mst_vs_no != 3
+		]]>
+	</select>
+	
+	<delete id="deleteByVNo">
+		<![CDATA[
+			delete from mst_volunteer
+			where mst_v_no = #{mst_v_no}
+		]]>
+	</delete>
+	
+	<delete id="deleteJoinV">
+		<![CDATA[
+			delete from join_v
+			where jv_no = #{jv_no}
+		]]>
+	</delete>
+	
+	<update id="updateVStatusP">
+		<![CDATA[
+			update join_v
+			set mst_vs_no = 2
+			where jv_no = #{no}
+		]]>
+	</update>
+	<update id="updateVStatusF">
+		<![CDATA[
+			update join_v
+			set mst_vs_no = 3
+			where jv_no = #{no}
+		]]>
+	</update>
+	<delete id="deleteJoinVByVNo">
+		<![CDATA[
+			delete from join_v
+			where mst_v_no = #{mst_v_no}
+		]]>
+	</delete>
+	
+	<!-- 봉사활동 후기게시판 관련 -->
+	
+	<!-- 후기 작성 -->
+	<insert id="insertRV">
+		<![CDATA[
+			INSERT INTO Review_Volunteer VALUES
+			(
+			#{rv_no},
+			#{jv_no},
+			#{m_no},
+			#{rv_title},
+			#{rv_content},
+			#{rv_score},
+			SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<!-- 후기 메인 -->
+	<select id="selectReviewVolList" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT * FROM 
+			(
+			SELECT rv1.*, ROWNUM as rnum 
+			FROM 
+			(SELECT * FROM Review_Volunteer ORDER BY rv_no DESC) rv1 
+			) rv2 
+			WHERE rv2.rnum >= (#{page_no}-1) * 10 + 1 
+			AND rv2.rnum <= #{page_no} * 10
+		]]>
+	</select>
+	
+	<select id="createRVKey" resultType="int">
+		<![CDATA[
+			SELECT Review_Volunteer_seq.nextval FROM DUAL
+		]]>
+	</select>
+	
+	<!-- 후기 상세 -->
+	<select id="selectRV" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT * FROM Review_Volunteer WHERE rv_no = #{rv_no}
+		]]>
+	</select>
+	
+	<!-- 특정 후기 select -->
+	<select id="selectReviewByNo" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT rv.* FROM Review_Volunteer rv , Join_V jv , MST_V_Date vd
+			WHERE rv.jv_no = jv.jv_no 
+			AND jv.mst_vd_no = vd.mst_vd_no
+			AND vd. mst_v_no = #{mst_v_no}
+		]]>
+	</select>
+	
+	<!-- 후기 수정 -->
+	<update id="updateRV">
+		<![CDATA[
+			UPDATE Review_Volunteer 
+			SET rv_title = #{rv_title},
+				rv_content = #{rv_content},
+				rv_score = #{rv_score}
+			WHERE rv_no = #{rv_no}
+		]]>
+	</update>
+	
+	<!-- 후기 삭제 -->
+	<delete id="deleteRV">
+		<![CDATA[
+			DELETE FROM Review_Volunteer WHERE rv_no = #{rv_no}
+		]]>
+	</delete>
+	
+	<!-- 후기 검색 -->
+	<!-- 제목 검색 -->
+	<select id="searchTitle" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT * FROM Review_Volunteer WHERE rv_title LIKE '%' || #{search_word} || '%'
+			ORDER BY rv_no DESC
+		]]>
+	</select>
+	
+	<!-- 내용 검색 -->
+	<select id="searchContent" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT * FROM Review_Volunteer WHERE rv_content LIKE '%' || #{search_word} || '%'
+			ORDER BY rv_no DESC
+		]]>
+	</select>
+	
+	<!-- 작성자 검색 -->
+	<select id="searchWriter" resultType="com.give.donagi.vo.ReviewVolunteerVo">
+		<![CDATA[
+			SELECT r.* FROM Review_Volunteer r, Member m
+			WHERE m.m_no = r.m_no
+			AND m.m_nick LIKE '%' || #{search_word} || '%'
+			ORDER BY rv_no DESC
+		]]>
+	</select>
+	
+	
+	
+	
+	<!-- 후기 댓글 관련 -->
+	
+	<!-- 봉사후기 댓글수 가져오기 -->
+	<select id="selectRVCommentCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT (*) 
+			FROM Comment_RV
+			WHERE rv_no = #{rv_no}
+		]]>
+	</select>
+	
+	
+	<!-- 봉사후기 댓글 작성 -->
+	<insert id="insertRVComment">
+		<![CDATA[
+			INSERT INTO Comment_RV VALUES(
+				Comment_RV_seq.nextval,
+				#{rv_no},
+				#{m_no},
+				#{crv_content},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	
+	<!-- 봉사후기 댓글 가져오기 -->
+	<select id="selectRVComment" resultType="com.give.donagi.vo.CommentRVVo">
+		<![CDATA[
+			SELECT * FROM Comment_RV WHERE rv_no = #{rv_no} ORDER BY crv_no ASC
+		]]>
+	</select>
+
+	<!-- 봉사후기 댓글 수정 -->
+	<update id="updateRVComment">
+		<![CDATA[
+			UPDATE Comment_RV SET crv_content = #{crv_content} WHERE crv_no = #{crv_no}
+		]]>
+	</update>
+	
+	
+	<!-- 봉사후기 댓글 삭제 -->
+	<delete	id="deleteRVComment">
+		<![CDATA[
+			DELETE FROM Comment_RV WHERE crv_no = #{crv_no}
+		]]>
+	</delete>
+	
+	<select id="selectReviewCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT (*) FROM Review_Volunteer
+			WHERE jv_no = #{jv_no}
+		]]>
+	</select>
+	
+	
+	<!-- 후기 추천 -->
+	<select id="createRno" resultType="int">
+		<![CDATA[
+			SELECT Recommend_RV_seq.nextval FROM DUAL
+		]]>
+	</select>
+	
+	<insert id="doRecommend">
+		<![CDATA[
+			INSERT INTO Recommend_RV VALUES
+			(
+				#{rrv_no},
+				#{rv_no},
+				#{m_no},
+				SYSDATE
+			)
+		]]>
+	</insert>
+	
+	<select id="checkRecommend" resultType="com.give.donagi.vo.RecommendRVVo">
+		<![CDATA[
+			SELECT * FROM Recommend_RV 
+			WHERE rv_no = #{rv_no}
+			AND m_no = #{m_no}
+		]]>
+	</select>
+	
+	<delete id="cancelRecommend">
+		<![CDATA[
+			DELETE FROM Recommend_RV
+			WHERE rv_no = #{rv_no}
+			AND m_no = #{m_no}
+		]]>
+	</delete>
+	
+	<select id="countRecommend" resultType="int">
+		<![CDATA[
+			SELECT COUNT (*) FROM Recommend_RV
+			WHERE rv_no = #{rv_no}
+		]]>
+	</select>
+
+	
+	<select id="joinCount" resultType="int">
+		<![CDATA[
+			select count(*)
+			from review_volunteer
+			where m_no = #{m_no}
+		]]>
+	</select>
+</mapper>

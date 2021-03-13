@@ -1,0 +1,201 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" 
+"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.give.donagi.main.mapper.UserMainSQLMapper">
+
+	<select id="selectAllFundingList" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_Funding
+		]]>
+	</select>
+
+	<select id="selectFundingList" resultType="com.give.donagi.vo.MSTFundingVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT mstf.* 
+					FROM MST_Funding mstf,
+							 Member			 mem 
+					WHERE mstf.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		mstf.mst_f_date_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		mstf.mst_f_date_from <= SYSDATE 
+					AND		mstf.mst_f_date_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+				  AND   mstf.mst_f_date_to < SYSDATE 
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY mstf.mst_f_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= 1 
+			AND		t2.rnum <= 3
+		]]>
+	</select>
+	
+	<select id="selectThumnailByFNo" resultType="com.give.donagi.vo.MSTFImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Img 
+			WHERE mst_f_no = #{mst_f_no}
+		]]>
+	</select>
+	
+	<select id="selectOrderListByFundingNo" resultType="com.give.donagi.vo.OrderFVo">
+		<![CDATA[
+			SELECT * 
+			FROM Order_F 
+			WHERE mst_f_no = #{mst_f_no} 
+			ORDER BY of_no DESC
+		]]>
+	</select>
+	
+	<select id="selectOrderDetailsByOrderNo" resultType="com.give.donagi.vo.ODetailVo">
+		<![CDATA[
+			SELECT * 
+			FROM O_Detail 
+			WHERE of_no = #{of_no}
+		]]>
+	</select>
+	
+	<select id="selectOptionByNo" resultType="com.give.donagi.vo.MSTFOptionVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_F_Option 
+			WHERE mst_fo_no = #{mst_fo_no}
+		]]>
+	</select>
+	
+	<select id="selectFundingParticipantCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(DISTINCT(m_no)) 
+			FROM Order_F
+		]]>
+	</select>
+	
+	<!-- 봉사 -->
+	
+	<select id="selectVolunteerList" parameterType="map" resultType="com.give.donagi.vo.MSTVolunteerVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT mstv.* 
+					FROM MST_volunteer mstv,
+							 Member			 mem 
+					WHERE mstv.m_no = mem.m_no 
+		]]>
+		<if test="status == 1">
+			<![CDATA[
+				  AND		mstv.mst_v_from > SYSDATE 
+			]]>
+		</if>
+		<if test="status == 2">
+			<![CDATA[
+				  AND		mstv.mst_v_from <= SYSDATE 
+					AND		mstv.mst_v_to >= to_char(SYSDATE-1) 
+			]]>
+		</if>
+		<if test="status == 3">
+			<![CDATA[
+				  AND   mstv.mst_v_to < SYSDATE 
+			]]>
+		</if>
+		<![CDATA[
+					ORDER BY mstv.mst_v_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= 1 
+			AND		t2.rnum <= 3
+		]]>
+	</select>
+	
+	<select id="selectVImgByVNo" resultType="com.give.donagi.vo.MSTVImgVo">
+		<![CDATA[
+			SELECT *  
+			FROM MST_V_Img
+			WHERE MST_V_NO = #{mst_v_no}
+		]]>
+	</select>
+	
+	<select id="JoinCount" resultType="int">
+		<![CDATA[
+			select count(distinct m_no) 
+			from join_v 
+			where mst_v_no = #{mst_v_no}
+			and mst_vs_no != 3
+		]]>
+	</select>
+	
+	<select id="selectVolunteerParticipantCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(DISTINCT(m_no)) 
+			FROM join_v
+		]]>
+	</select>
+	
+	<!-- 기부 -->
+	<select id="selectDonateList" resultType="com.give.donagi.vo.MSTDonateVo">
+		<![CDATA[
+			SELECT * 
+			FROM (
+				SELECT ROWNUM rnum, t1.* 
+				FROM (
+					SELECT * 
+					FROM MST_Donate
+				  WHERE mst_d_date_from <= SYSDATE 
+					AND		mst_d_date_to >= to_char(SYSDATE-1) 
+					ORDER BY mst_d_no DESC
+				) t1
+			) t2
+			WHERE t2.rnum >= 1 
+			AND		t2.rnum <= 3
+		]]>
+	</select>
+	
+	<select id="selectThumnailByDNo" resultType="com.give.donagi.vo.MSTDImgVo">
+		<![CDATA[
+			SELECT * 
+			FROM MST_D_Img 
+			WHERE mst_d_no = #{mst_d_no}
+		]]>
+	</select>
+	
+	<select id="selectDonateParticipantCount" resultType="int">
+		<![CDATA[
+			SELECT COUNT(DISTINCT(m_no)) 
+			FROM Donate_D
+		]]>
+	</select>
+	
+	<select id="selectAllDonate" resultType="com.give.donagi.vo.DonateDVo">
+		<![CDATA[
+			SELECT * 
+			FROM Donate_D
+		]]>
+	</select>
+	
+	<select id="selectPointByMSTDNo" resultType="com.give.donagi.vo.DonateDVo">
+		<![CDATA[
+			SELECT *  
+			FROM Donate_D 
+			WHERE mst_d_no = #{mst_d_no}
+		]]>
+	</select>
+	
+</mapper>
